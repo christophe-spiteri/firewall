@@ -16,7 +16,7 @@ $excludeUrl        = [
     '/wordpress',
 ];
 $refererBlackList  = ['binance.com', 'anonymousfox.co'];
-$hostNameWhiteList = ['googlebot.com', 'google.com', 'search.msn.com'];
+$hostNameWhiteList = ['googlebot.com', 'google.com', 'search.msn.com','.qwant.com'];
 $whiteListIp       = [];
 Firewall::init($userAgent, $excludeUrl, $refererBlackList, $hostNameWhiteList, $whiteListIp);
 Firewall::test(true);
