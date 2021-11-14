@@ -1,13 +1,4 @@
 {
   "name": "christophe-spiteri/firewall.git",
-  "description": "firewall",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/christophe-spiteri/firewall.git"
-    }
-  ],
-  "version": "1.0.0",
-  "dependencies": {
-  }
+  "type": "library"
 }
