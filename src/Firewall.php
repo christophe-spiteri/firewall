@@ -109,7 +109,7 @@ class Firewall
      */
     public static function ipIsWhiteListed($server): bool
     {
-        return self::matchPattern($server['REMOTE_ADDR'], self::$whiteListIp);
+        return self::matchPattern($server['REMOTE_ADDR']??'', self::$whiteListIp);
     }
 
     /**
@@ -123,7 +123,7 @@ class Firewall
         if ($uri == '\\') {
             return false;
         }
-        return self::matchPattern($server['REQUEST_URI'], self::$excludeUrl);
+        return self::matchPattern($server['REQUEST_URI']??'', self::$excludeUrl);
     }
 
     /**
@@ -133,7 +133,7 @@ class Firewall
      */
     public static function userAgentIsBlackListed($server): bool
     {
-        return self::matchPattern($server['HTTP_USER_AGENT'], self::$userAgent);
+        return self::matchPattern($server['HTTP_USER_AGENT']??'', self::$userAgent);
     }
 
 
@@ -144,7 +144,7 @@ class Firewall
      */
     public static function hostNameIsWhiteListed($server): bool
     {
-        $hostName = gethostbyaddr($server['REMOTE_ADDR']);
+        $hostName = gethostbyaddr($server['REMOTE_ADDR']??'');
         return self::matchPattern($hostName, self::$hostNameWhiteList);
     }
 
@@ -155,7 +155,7 @@ class Firewall
      */
     public static function refererIsBlackListed($server): bool
     {
-        return self::matchPattern($server['HTTP_REFERER'], self::$refererBlackList);
+        return self::matchPattern($server['HTTP_REFERER']??'', self::$refererBlackList);
     }
 
     /**
@@ -193,7 +193,7 @@ class Firewall
             if (substr($pattern, -1, 1) != '/') {
                 $pattern .= '/';
             }
-            if (isset($server) and preg_match($pattern, $server) == 1) {
+            if ( preg_match($pattern, $server) == 1) {
                 return true;
             }
         }
