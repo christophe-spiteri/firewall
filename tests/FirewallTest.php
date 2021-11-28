@@ -1,8 +1,10 @@
 <?php
-include('src\Firewall.php');
+//include('src\Firewall.php');
 
-use ClsScripts\Firewall;
 use PHPUnit\Framework\TestCase;
+use ClsScripts\Firewall\Firewall;
+
+require_once dirname(__DIR__).'/vendor/autoload.php';
 
 class FirewallTest extends TestCase
 {

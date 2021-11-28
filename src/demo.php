@@ -1,6 +1,7 @@
 <?php
 
-use ClsScripts\Firewall;
+use ClsScripts\Firewall\Firewall;
+require_once dirname(__DIR__).'/vendor/autoload.php';
 
 include_once('Firewall.php');
 $userAgent         = ['python-'];
