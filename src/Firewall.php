@@ -51,7 +51,7 @@ class Firewall
     private static function log(string $log): void
     {
         if (self::$test) {
-            die($log);
+            echo $log;
         }
     }
 
@@ -69,31 +69,31 @@ class Firewall
      */
     public static function run(): void
     {
-        if (self::ipIsWhiteListed()) {
+        if (self::ipIsWhiteListed($_SERVER)) {
             self::log('IP en liste blanche');
             return;
         }
 
-        if (self::hostNameIsWhiteListed()) {
+        if (self::hostNameIsWhiteListed($_SERVER)) {
             self::log('HostName en liste Blanche');
             return;
         }
 
-        if (self::urlIsBlackListed()) {
+        if (self::urlIsBlackListed($_SERVER)) {
             self::addIpInBlackList();
             self::header();
             self::log('addIpInBlackList urlIsBlackListed');
             die('');
         }
 
-        if (self::userAgentIsBlackListed()) {
+        if (self::userAgentIsBlackListed($_SERVER)) {
             self::addIpInBlackList();
             self::header();
             self::log('addIpInBlackList userAgentIsBlackListed');
             die('');
         }
 
-        if (self::refererIsBlackListed()) {
+        if (self::refererIsBlackListed($_SERVER)) {
             self::addIpInBlackList();
             self::header();
             self::log('addIpInBlackList refererIsBlackListed');
@@ -107,14 +107,9 @@ class Firewall
      *
      * @return bool
      */
-    private static function ipIsWhiteListed(): bool
+    public static function ipIsWhiteListed($server): bool
     {
-        foreach (self::$whiteListIp as $ip) {
-            if ($ip == substr($_SERVER['REMOTE_ADDR'], 0, strlen($ip))) {
-                return true;
-            }
-        }
-        return false;
+        return self::matchPattern($server['REMOTE_ADDR'], self::$whiteListIp);
     }
 
     /**
@@ -122,18 +117,13 @@ class Firewall
      * Ip blacklistée retourne True, sinon False
      * @return bool
      */
-    private static function urlIsBlackListed(): bool
+    public static function urlIsBlackListed($server): bool
     {
-        $uri = $_SERVER['REQUEST_URI'];
+        $uri = $server['REQUEST_URI'];
         if ($uri == '\\') {
             return false;
         }
-        foreach (self::$excludeUrl as $urlExclue) {
-            if (strstr($uri, $urlExclue) !== false) {
-                return true;
-            }
-        }
-        return false;
+        return self::matchPattern($server['REQUEST_URI'], self::$excludeUrl);
     }
 
     /**
@@ -141,30 +131,21 @@ class Firewall
      * User_Agent blacklisté retourne True, sinon False
      * @return bool
      */
-    private static function userAgentIsBlackListed(): bool
+    public static function userAgentIsBlackListed($server): bool
     {
-        foreach (self::$userAgent as $agent) {
-            if (isset($_SERVER['HTTP_USER_AGENT']) and strstr($_SERVER['HTTP_USER_AGENT'], $agent) !== false) {
-                return true;
-            }
-        }
-        return false;
+        return self::matchPattern($server['HTTP_USER_AGENT'], self::$userAgent);
     }
+
 
     /**
      * converti l'ip en host et vérifira s'il est dans la liste blanche $hostNameWhiteList
      * si l'Ip appartient a un host reconnu, retoure True, sinon false
      * @return bool
      */
-    private static function hostNameIsWhiteListed(): bool
+    public static function hostNameIsWhiteListed($server): bool
     {
-        $hostName = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-        foreach (self::$hostNameWhiteList as $name) {
-            if (strstr($hostName, $name) !== false) {
-                return true;
-            }
-        }
-        return false;
+        $hostName = gethostbyaddr($server['REMOTE_ADDR']);
+        return self::matchPattern($hostName, self::$hostNameWhiteList);
     }
 
     /**
@@ -172,22 +153,20 @@ class Firewall
      * Referer blacklisté retourne True, sinon False
      * @return bool
      */
-    private static function refererIsBlackListed(): bool
+    public static function refererIsBlackListed($server): bool
     {
-        foreach (self::$refererBlackList as $referer) {
-            if (isset($_SERVER['HTTP_REFERER']) and strstr($_SERVER['HTTP_REFERER'], $referer) !== false) {
-                return true;
-            }
-        }
-        return false;
+        return self::matchPattern($server['HTTP_REFERER'], self::$refererBlackList);
     }
 
     /**
      * ecrit dans htacces d'apache pour bloquer l'ip
      */
 
-    private static function addIpInBlackList(): void
+    public static function addIpInBlackList(): void
     {
+        if (self::$test) {
+            die(sprintf('Ip %s ajoutée au fichier %s', $_SERVER['REMOTE_ADDR'], self::FILENAME));
+        }
         $homepage = "\r\nDeny from " . $_SERVER['REMOTE_ADDR'];
         file_put_contents(self::FILENAME, $homepage, FILE_APPEND);
     }
@@ -195,8 +174,29 @@ class Firewall
     /**
      * modifie le header, pas forcement utile, mais visible dans les logs apache
      */
-    private static function header(): void
+    public static function header(): void
     {
         header('Status: 666 El Diablo');
+    }
+
+    /**
+     * @param $server
+     *
+     * @return bool
+     */
+    private static function matchPattern($server, $patterns): bool
+    {
+        foreach ($patterns as $pattern) {
+            if (substr($pattern, 0, 1) != '/') {
+                $pattern = '/' . $pattern;
+            }
+            if (substr($pattern, -1, 1) != '/') {
+                $pattern .= '/';
+            }
+            if (isset($server) and preg_match($pattern, $server) == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

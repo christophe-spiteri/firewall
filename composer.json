@@ -1,4 +1,7 @@
 {
   "name": "christophe-spiteri/firewall",
-  "type": "library"
+  "type": "library",
+  "require": {
+    "phpunit/phpunit": "^9.5"
+  }
 }
