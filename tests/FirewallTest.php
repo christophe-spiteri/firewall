@@ -1,7 +1,7 @@
 <?php
 include('src\Firewall.php');
 
-use ClsScript\Firewall;
+use ClsScripts\Firewall;
 use PHPUnit\Framework\TestCase;
 
 class FirewallTest extends TestCase
@@ -46,6 +46,7 @@ class FirewallTest extends TestCase
             '/blog',
             '/joomla',
             '/wordpress',
+            '/site(\/)*$'
         ];
         Firewall::init([], $excludeUrl, [], [], []);
         $this->assertEquals(
@@ -65,7 +66,10 @@ class FirewallTest extends TestCase
             ["/.git", true],
             ["/", false],
             ["\\", false],
-            ['/route/', false]
+            ['/route/', false],
+            ['/sitemap.xml',false],
+            ['/site',true],
+            ['/site/',true]
         ];
     }
 

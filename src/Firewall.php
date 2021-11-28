@@ -20,7 +20,7 @@ HORS OU EN LIEN AVEC LE LOGICIEL OU L'UTILISATION OU D'AUTRES ACTIONS DANS LE
 LOGICIEL.
 
  */
-namespace ClsScript;
+namespace ClsScripts;
 
 class Firewall
 {

@@ -1,6 +1,6 @@
 <?php
 
-use ClsScript\Firewall;
+use ClsScripts\Firewall;
 
 include_once('Firewall.php');
 $userAgent         = ['python-'];
